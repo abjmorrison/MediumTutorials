@@ -2,11 +2,15 @@ from geopy.geocoders import Nominatim
 from ratelimiter import RateLimiter
 
 @RateLimiter(max_calls=10, period=1)
-def geocode(df, column):
+def geocode(df, column, valid_types, valid_countries=None):
+    '''
+    This function uses the Nomintim service via GeoPy
+    to geocode a list of place names
+    This function accepts a data frame with a column of place names,
+    a list of types that match the desired location type, and a list of country names that match the desired country
+    '''
 
-    df_dict = dict(zip(df.index, df.location))
-    valid_types = ['city','village']
-    valid_countries = ['Democratic Republic of the Congo','République démocratique du Congo']
+    df_dict = dict(zip(df.index, df['column']))
     matches = []
 
     for k, v in df_dict.items():
@@ -17,9 +21,7 @@ def geocode(df, column):
                     lat = l.raw['lat']
                     long = l.raw['lon']
                     name = l.raw['display_name']
-                    if 'Congo' in name:
-                        matches.append({k : [name, lat, long]})
-                    else: continue
+                    matches.append({k : [name, lat, long]})
                 else: continue
 
     return matches
